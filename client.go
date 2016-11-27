@@ -9,7 +9,7 @@ import (
 )
 
 const DEFAULT_TIMEOUT_STRING_SECONDS = "30"
-const DEFAULT_HOST = "sudolikeaboss://local"
+const DEFAULT_HOST = "chrome://extension"
 const DEFAULT_WEBSOCKET_URI = "ws://127.0.0.1:6263/4"
 const DEFAULT_WEBSOCKET_PROTOCOL = ""
 const DEFAULT_WEBSOCKET_ORIGIN = "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk"
@@ -51,20 +51,30 @@ func retrievePasswordFromOnepassword(configuration *onepass.Configuration, done 
 		os.Exit(1)
 	}
 
-	response, err := client.SendHelloCommand()
+	authResponse, err := client.SendHelloCommand()
 
 	if err != nil {
+		fmt.Println(authResponse)
 		os.Exit(1)
 	}
 
-	response, err = client.SendShowPopupCommand()
+	response, err := client.SendShowPopupCommand()
 
 	if err != nil {
+		fmt.Println(response)
 		os.Exit(1)
 	}
 
-	password, err := response.GetPassword()
-	fmt.Println(password)
+	fmt.Println(response.Script[1][2])
+
+	/*password, err := response.GetPassword()
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(password)*/
 
 	done <- true
 }

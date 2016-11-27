@@ -2,9 +2,23 @@ package onepass
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
+	//"errors"
+	//"fmt"
 )
+
+type AuthResponse struct {
+	Action  string          	`json:"action"`
+	Version string          	`json:"version"`
+	Payload AuthResponsePayload 	`json:"payload"`
+}
+
+type AuthResponsePayload struct {
+	Alg 	string 	`json:"alg"`
+	Code 	string 	`json:"code"`
+	Method 	string 	`json:"method"`
+	M3 	string 	`json:"m3"`
+}
+
 
 type Response struct {
 	Action  string          `json:"action"`
@@ -13,9 +27,29 @@ type Response struct {
 }
 
 type ResponsePayload struct {
-	Item          ItemResponsePayload    `json:"item"`
+	/*Item          ItemResponsePayload    `json:"item"`
 	Options       map[string]interface{} `json:"options"`
-	OpenInTabMode string                 `json:"openInTabMode"`
+	OpenInTabMode string                 `json:"openInTabMode"`*/
+	IV 	string 	`json:"iv"`
+	Hmac 	string 	`json:"hmac"`
+	Data 	string 	`json:"data"`
+	Alg 	string 	`json:"alg"`
+}
+
+type ResponseData struct {
+	NakedDomains	[]string 		`json:"nakedDomains"`
+	OpenInTabMode 	string			`json:"openInTabMode"`
+	Url 		string 			`json:"url"`
+	ItemUUID 	string 			`json:"itemUUID"`
+	Context 	string 			`json:"context"`
+
+	Script 		[][]string		`json:"script"`
+}
+
+type ResponseContext struct {
+	ItemUUID 	string 		`json:"itemUUID"`
+	ProfileUUID 	string 		`json:"profileUUID"`
+	UUID 		string 		`json:"uuid"`
 }
 
 type ItemResponsePayload struct {
@@ -30,6 +64,28 @@ type SecureContents struct {
 	Fields   []map[string]string    `json:"fields"`
 }
 
+func LoadAuthResponse(rawResponseStr string) (*AuthResponse, error) {
+	rawResponseBytes := []byte(rawResponseStr)
+	var response AuthResponse
+
+	if err := json.Unmarshal(rawResponseBytes, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func LoadResponseData(rawResponseStr string) (*ResponseData, error) {
+	rawResponseBytes := []byte(rawResponseStr)
+	var response ResponseData
+
+	if err := json.Unmarshal(rawResponseBytes, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
 func LoadResponse(rawResponseStr string) (*Response, error) {
 	rawResponseBytes := []byte(rawResponseStr)
 	var response Response
@@ -41,7 +97,18 @@ func LoadResponse(rawResponseStr string) (*Response, error) {
 	return &response, nil
 }
 
-func (response *Response) GetPassword() (string, error) {
+func LoadContext(context string) (*ResponseContext, error) {
+	rawContext := []byte(context)
+	var response ResponseContext
+
+	if err := json.Unmarshal(rawContext, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+/*func (response *Response) GetPassword() (string, error) {
 	if response.Action != "fillItem" {
 		errorMsg := fmt.Sprintf("Response action \"%s\" does not have a password", response.Action)
 		return "", errors.New(errorMsg)
@@ -71,4 +138,4 @@ func getPasswordFromResponse(rawResponseStr string) (string, error) {
 	}
 
 	return "", errors.New("No password found in the response")
-}
+}*/
