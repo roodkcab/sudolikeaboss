@@ -3,7 +3,6 @@ package onepass
 import (
 	"encoding/json"
 	//"errors"
-	//"fmt"
 )
 
 type AuthResponse struct {
@@ -42,7 +41,6 @@ type ResponseData struct {
 	Url 		string 			`json:"url"`
 	ItemUUID 	string 			`json:"itemUUID"`
 	Context 	string 			`json:"context"`
-
 	Script 		[][]string		`json:"script"`
 }
 
@@ -79,6 +77,14 @@ func LoadResponseData(rawResponseStr string) (*ResponseData, error) {
 	rawResponseBytes := []byte(rawResponseStr)
 	var response ResponseData
 
+    idx := len(rawResponseBytes) - 1
+    for idx >= 0 {
+        if (rawResponseBytes[idx] == 125) {
+            break
+        }
+        rawResponseBytes = rawResponseBytes[:len(rawResponseBytes) - 1]
+        idx--
+    }
 	if err := json.Unmarshal(rawResponseBytes, &response); err != nil {
 		return nil, err
 	}

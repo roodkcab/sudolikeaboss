@@ -54,7 +54,7 @@ func (Codec)toBits(data string, b bool) []byte {
 			binary.Write(buf, binary.BigEndian, f)
 			c = append(c, buf.Bytes()...)
 		} else {
-			fmt.Println("!", d & 56)
+			fmt.Println("!!!!!!!!!!!!!!!!!!!", d & 56)
 		}
 	}
 	return c

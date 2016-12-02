@@ -321,11 +321,7 @@ func (client *OnePasswordClient) SendShowPopupCommand() (*ResponseData , error) 
 			return nil, err
 		}
 		responseData = client.encryptor.decryptPayload(response.Payload.Data, response.Payload.IV, response.Payload.Hmac)
-		decryptPayload, err = LoadResponseData(strings.Trim(responseData, "\a"))
-		if (err != nil) {
-			fmt.Println(err)
-			return nil, err
-		}
+		decryptPayload, _ = LoadResponseData(responseData)
 		return decryptPayload, nil
 	}
 	return nil, nil
