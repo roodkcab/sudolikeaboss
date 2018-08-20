@@ -19,34 +19,40 @@ type Command struct {
 	Version  string  `json:"version"`
 	BundleId string  `json:"bundleId"`
 	Payload  Payload `json:"payload"`
+
+	Command string   `json:"command"`
+	UUID    string   `json:"uuid"`
+	Params  Payload  `json:"params"`
 }
 
 type Payload struct {
-	Version      	string            	`json:"version,omitempty"`
-	Capabilities 	[]string          	`json:"capabilities,omitempty"`
+	Version      	string          `json:"version,omitempty"`
+	Capabilities 	[]string        `json:"capabilities,omitempty"`
 
-	ExtId  		string          	`json:"extId,omitempty"`
-	Method 		string			`json:"method,omitempty"`
-	Secret 		string 			`json:"secret,omitempty"`
-	CC 		string 			`json:"cc,omitempty"`
-	M4 		string 			`json:"M4,omitempty"`
+	ExtId  		    string          `json:"extId,omitempty"`
+	Method 		    string			`json:"method,omitempty"`
+	Secret 		    string 			`json:"secret,omitempty"`
+	CC 		        string 			`json:"cc,omitempty"`
+	M4 		        string 			`json:"M4,omitempty"`
 
-	Url          	string            	`json:"url"`
-	Title 		string 			`json:"title"`
-	TabUrl		string 			`json:"tabUrl"`
+	Url          	string          `json:"url"`
+	Title 		    string 			`json:"title"`
+	TabUrl		    string 			`json:"tabUrl"`
 	Options      	map[string]string 	`json:"options"`
-	Context		string			`json:"context"`
-
-	Alg		string 			`json:"alg"`
-	Iv		string			`json:"iv"`
-	Hmac		string			`json:"hmac"`
-	Data		string                  `json:"data"`
-
-	DocumentUUID		string				`json:"documentUUID"`
-	DocumentURL		string 				`json:"documentUrl"`
+	Context		        string			                `json:"context"`
+	DocumentURL		    string 				            `json:"url"`
 	CollectedTimestamp	string 				`json:"collectedTimestamp"`
-	Forms 			map[string]map[string]string 	`json:"forms"`
-	Fields 			[]map[string]string		`json:"fields"`
+    DocumentUUID		string				`json:"documentUUID"`
+	Forms   map[string]map[string]string 	`json:"forms"`
+    Fields  []map[string]string		        `json:"fields"`
+
+	Alg		        string 			 `json:"alg"`
+	Iv		        string			 `json:"iv"`
+	Hmac		    string			 `json:"hmac"`
+	Data		    string           `json:"data"`
+}
+
+type CollectDocumentResultsFields struct {
 }
 
 type WebsocketClient interface {
@@ -107,9 +113,7 @@ func (client *OnePasswordClient) Connect() error {
 func (client *OnePasswordClient) createCommand(action string, payload Payload) *Command {
 	command := Command{
 		Action:   action,
-		Number:   client.number,
-		Version:  "4",
-		BundleId: "com.sudolikeaboss.sudolikeaboss",
+        Number:   client.number,
 		Payload:  payload,
 	}
 
@@ -299,21 +303,18 @@ func (client *OnePasswordClient) SendShowPopupCommand() (*ResponseData , error) 
 		responseData := client.encryptor.decryptPayload(response.Payload.Data, response.Payload.IV, response.Payload.Hmac)
 		decryptPayload, _ := LoadResponseData(strings.Trim(responseData, "\f"))
 		collectDocumentResultsPayload := Payload {
-			CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
+		    Url:     client.DefaultHost,
 			Context: decryptPayload.Context,
+			CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
 			DocumentUUID: "",
-			DocumentURL: "",
-			Url: "",
-			Title: "",
-			TabUrl: "",
-			Forms: map[string]map[string]string{
-			},
+			Forms: map[string]map[string]string {},
 			Fields: []map[string]string {
-				{"opid":"__0","elementNumber":"0","visible":"true","viewable":"true","htmlID":"email","htmlName":"","title":"","userEdited":"false","label-tag":"Email","label-right":"","label-left":"Email","placeholder":"","type":"email","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"email","onepasswordDesignation":"username"},
+                {"opid":"__0","elementNumber":"0","visible":"true","viewable":"true","htmlID":"email","htmlName":"","title":"","userEdited":"false","label-tag":"Email","label-right":"","label-left":"Email","placeholder":"","type":"email","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"email","onepasswordDesignation":"username"},
 				{"opid":"__1","elementNumber":"2","visible":"true","viewable":"true","htmlID":"master-password","htmlName":"","title":"","userEdited":"false","label-tag":"Master Password","label-right":"","label-left":"Master Password","placeholder":"","type":"password","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"password","onepasswordDesignation":"password"},
-			},
+            },
 		}
 		collectDocumentResults, _ := json.Marshal(collectDocumentResultsPayload)
+fmt.Println(string(collectDocumentResults))
 		command = client.createCommand("collectDocumentResults", client.encryptor.encryptPayload(string(collectDocumentResults)))
 		response, err := client.SendCommand(command)
 		if (err != nil) {

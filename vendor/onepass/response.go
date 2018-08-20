@@ -2,7 +2,8 @@ package onepass
 
 import (
 	"encoding/json"
-	//"errors"
+    "fmt"
+	"errors"
 )
 
 type AuthResponse struct {
@@ -18,7 +19,6 @@ type AuthResponsePayload struct {
 	M3 	string 	`json:"m3"`
 }
 
-
 type Response struct {
 	Action  string          `json:"action"`
 	Version string          `json:"version"`
@@ -26,9 +26,9 @@ type Response struct {
 }
 
 type ResponsePayload struct {
-	/*Item          ItemResponsePayload    `json:"item"`
+	Item          ItemResponsePayload    `json:"item"`
 	Options       map[string]interface{} `json:"options"`
-	OpenInTabMode string                 `json:"openInTabMode"`*/
+	OpenInTabMode string                 `json:"openInTabMode"`
 	IV 	string 	`json:"iv"`
 	Hmac 	string 	`json:"hmac"`
 	Data 	string 	`json:"data"`
@@ -114,7 +114,7 @@ func LoadContext(context string) (*ResponseContext, error) {
 	return &response, nil
 }
 
-/*func (response *Response) GetPassword() (string, error) {
+func (response *Response) GetPassword() (string, error) {
 	if response.Action != "fillItem" {
 		errorMsg := fmt.Sprintf("Response action \"%s\" does not have a password", response.Action)
 		return "", errors.New(errorMsg)
@@ -129,7 +129,7 @@ func LoadContext(context string) (*ResponseContext, error) {
 	return "", errors.New("No password found in the response")
 }
 
-func getPasswordFromResponse(rawResponseStr string) (string, error) {
+/*func getPasswordFromResponse(rawResponseStr string) (string, error) {
 	rawResponseBytes := []byte(rawResponseStr)
 	var response Response
 

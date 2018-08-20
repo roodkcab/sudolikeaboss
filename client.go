@@ -2,19 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/roodkcab/sudolikeaboss/onepass"
+	"onepass"
 	"os"
 	"strconv"
 	"time"
-    "os/exec"
-    "strings"
+    //"strings"
 )
 
 const DEFAULT_TIMEOUT_STRING_SECONDS = "30"
-const DEFAULT_HOST = "chrome://extension"
+const DEFAULT_HOST = "safari://extension"
 const DEFAULT_WEBSOCKET_URI = "ws://127.0.0.1:6263/4"
 const DEFAULT_WEBSOCKET_PROTOCOL = ""
-const DEFAULT_WEBSOCKET_ORIGIN = "chrome-extension://aomjjhallfgjeglblehebfpbcfeobpgk"
+const DEFAULT_WEBSOCKET_ORIGIN = "safari-extension://com.agilebits.onepassword4-safari-2bua8c4s2c"
 
 func LoadConfiguration() *onepass.Configuration {
 	defaultHost := os.Getenv("SUDOLIKEABOSS_DEFAULT_HOST")
@@ -67,7 +66,7 @@ func retrievePasswordFromOnepassword(configuration *onepass.Configuration, done 
 		os.Exit(1)
 	}
 
-    host := strings.Split(response.Url, " ")
+    /*host := strings.Split(response.Url, " ")
 
     base := append([]string{host[0], response.Script[1][2]}, host[1:]...)
     //sshArgs := append(base)
@@ -75,8 +74,9 @@ func retrievePasswordFromOnepassword(configuration *onepass.Configuration, done 
     cmd.Stdin = os.Stdin
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
-    cmd.Run()
+    cmd.Run()*/
 
+    fmt.Println(response)
 	/*password, err := response.GetPassword()
 
 	if err != nil {
