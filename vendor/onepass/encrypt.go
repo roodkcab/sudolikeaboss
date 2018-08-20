@@ -13,7 +13,7 @@ type encrypt struct {
 	Ya cipher.Block
 }
 
-func (c *encrypt)encryptPayload (payload string) Payload {
+func (c *encrypt)encryptPayload (payload string) EncryptedPayload {
 	payloadBytes := []byte(payload)
 	iv := codec.generateRandomBytesArray(16)
 
@@ -32,7 +32,7 @@ func (c *encrypt)encryptPayload (payload string) Payload {
 	modeDec := cipher.NewCBCDecrypter(c.Ya, iv)
 	modeDec.CryptBlocks(payloadBytes, payloadBytes)
 
-	return Payload {
+	return EncryptedPayload {
 		Alg: 	"aead-cbchmac-256",
 		Iv: 	ivStr,
 		Data: 	payloadStr,

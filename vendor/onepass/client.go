@@ -18,11 +18,18 @@ type Command struct {
 	Number   int     `json:"number"`
 	Version  string  `json:"version"`
 	BundleId string  `json:"bundleId"`
-	Payload  Payload `json:"payload"`
+	Payload  interface{} `json:"payload"`
 
 	Command string   `json:"command"`
 	UUID    string   `json:"uuid"`
 	Params  Payload  `json:"params"`
+}
+
+type EncryptedPayload struct {
+    Alg		        string 			 `json:"alg"`
+	Iv		        string			 `json:"iv"`
+	Hmac		    string			 `json:"hmac"`
+	Data		    string           `json:"data"`
 }
 
 type Payload struct {
@@ -35,21 +42,15 @@ type Payload struct {
 	CC 		        string 			`json:"cc,omitempty"`
 	M4 		        string 			`json:"M4,omitempty"`
 
-	Url          	string          `json:"url"`
+	//Url          	string          `json:"url"`
 	Title 		    string 			`json:"title"`
 	TabUrl		    string 			`json:"tabUrl"`
 	Options      	map[string]string 	`json:"options"`
-	Context		        string			                `json:"context"`
-	DocumentURL		    string 				            `json:"url"`
+	Context		        string			    `json:"context"`
 	CollectedTimestamp	string 				`json:"collectedTimestamp"`
     DocumentUUID		string				`json:"documentUUID"`
 	Forms   map[string]map[string]string 	`json:"forms"`
     Fields  []map[string]string		        `json:"fields"`
-
-	Alg		        string 			 `json:"alg"`
-	Iv		        string			 `json:"iv"`
-	Hmac		    string			 `json:"hmac"`
-	Data		    string           `json:"data"`
 }
 
 type CollectDocumentResultsFields struct {
@@ -76,7 +77,7 @@ type OnePasswordClient struct {
 }
 
 var method string
-var extId = "7EA0C2BA4DAC1ACA796A4F26076E9936"
+var extId = "7EA0C2BA4DAC1ACA796A4F26076E9990"
 var codec = Codec{}
 
 func NewClientWithConfig(configuration *Configuration) (*OnePasswordClient, error) {
@@ -110,8 +111,8 @@ func (client *OnePasswordClient) Connect() error {
 	return err
 }
 
-func (client *OnePasswordClient) createCommand(action string, payload Payload) *Command {
-	command := Command{
+func (client *OnePasswordClient) createCommand(action string, payload interface{}) *Command {
+	command := Command {
 		Action:   action,
         Number:   client.number,
 		Payload:  payload,
@@ -290,32 +291,33 @@ func (client *OnePasswordClient) SendAuthContinueCommand(authResponse *AuthRespo
 	return response, nil
 }
 
-func (client *OnePasswordClient) SendShowPopupCommand() (*ResponseData , error) {
-	popUpPayload := Payload {
-		Url:     client.DefaultHost,
-		Options: map[string]string{"source": "toolbar-button"},
-	}
-	popUpPayloadStr, _ := json.Marshal(popUpPayload)
-	command := client.createCommand("showPopup", client.encryptor.encryptPayload(string(popUpPayloadStr)))
+func (client *OnePasswordClient) SendShowPopupCommand() (*ResponseData, error) {
+    options, _ := json.Marshal(Payload {
+		//Url:    client.DefaultHost,
+		Options: map[string]string {
+            "source": "toolbar-button",
+        },
+    })
+	command := client.createCommand("showPopup", client.encryptor.encryptPayload(string(options)))
 	response, _ := client.SendCommand(command)
 
 	if (response.Action == "collectDocuments") {
 		responseData := client.encryptor.decryptPayload(response.Payload.Data, response.Payload.IV, response.Payload.Hmac)
 		decryptPayload, _ := LoadResponseData(strings.Trim(responseData, "\f"))
-		collectDocumentResultsPayload := Payload {
-		    Url:     client.DefaultHost,
-			Context: decryptPayload.Context,
-			CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
-			DocumentUUID: "",
-			Forms: map[string]map[string]string {},
-			Fields: []map[string]string {
-                {"opid":"__0","elementNumber":"0","visible":"true","viewable":"true","htmlID":"email","htmlName":"","title":"","userEdited":"false","label-tag":"Email","label-right":"","label-left":"Email","placeholder":"","type":"email","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"email","onepasswordDesignation":"username"},
-				{"opid":"__1","elementNumber":"2","visible":"true","viewable":"true","htmlID":"master-password","htmlName":"","title":"","userEdited":"false","label-tag":"Master Password","label-right":"","label-left":"Master Password","placeholder":"","type":"password","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"password","onepasswordDesignation":"password"},
+        fields, _ := json.Marshal(Payload {
+            Context: decryptPayload.Context,
+            CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
+            DocumentUUID: "", 
+            /*Forms: map[string]map[string]string {
+                    "__form__0": { "htmlAction" : "", "htmlID": "login", "htmlMethod": "get", "htmlName": "", "opid": "__form__0", },
             },
-		}
-		collectDocumentResults, _ := json.Marshal(collectDocumentResultsPayload)
-fmt.Println(string(collectDocumentResults))
-		command = client.createCommand("collectDocumentResults", client.encryptor.encryptPayload(string(collectDocumentResults)))
+			Fields: []map[string]string {
+                {"opid":"__0","elementNumber":"0","form":"__form__0","visible":"true","viewable":"true","htmlID":"userName","htmlName":"","title":"","userEdited":"false","label-right":"","label-left":"","placeholder":"","type":"text","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"text"},
+				{"opid":"__1","elementNumber":"1","form":"__form__0","visible":"true","viewable":"true","htmlID":"userPassword","htmlName":"","title":"","userEdited":"false","label-right":"","label-left":"","placeholder":"","type":"password","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"password"},
+            },*/
+        })
+fmt.Println(fields)
+		command = client.createCommand("collectDocumentResults", client.encryptor.encryptPayload(string(fields)))
 		response, err := client.SendCommand(command)
 		if (err != nil) {
 			fmt.Println(err)
