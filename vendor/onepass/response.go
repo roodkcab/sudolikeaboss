@@ -2,7 +2,6 @@ package onepass
 
 import (
 	"encoding/json"
-    "fmt"
 	"errors"
 )
 
@@ -77,14 +76,14 @@ func LoadResponseData(rawResponseStr string) (*ResponseData, error) {
 	rawResponseBytes := []byte(rawResponseStr)
 	var response ResponseData
 
-    idx := len(rawResponseBytes) - 1
-    for idx >= 0 {
-        if (rawResponseBytes[idx] == 125) {
-            break
-        }
-        rawResponseBytes = rawResponseBytes[:len(rawResponseBytes) - 1]
-        idx--
-    }
+	idx := len(rawResponseBytes) - 1
+	for idx >= 0 {
+		if (rawResponseBytes[idx] == 125) {
+			break
+		}
+		rawResponseBytes = rawResponseBytes[:len(rawResponseBytes) - 1]
+		idx--
+	}
 	if err := json.Unmarshal(rawResponseBytes, &response); err != nil {
 		return nil, err
 	}
@@ -114,34 +113,7 @@ func LoadContext(context string) (*ResponseContext, error) {
 	return &response, nil
 }
 
-func (response *Response) GetPassword() (string, error) {
-	if response.Action != "fillItem" {
-		errorMsg := fmt.Sprintf("Response action \"%s\" does not have a password", response.Action)
-		return "", errors.New(errorMsg)
-	}
-
-	for _, field_obj := range response.Payload.Item.SecureContents.Fields {
-		if field_obj["designation"] == "password" {
-			return field_obj["value"], nil
-		}
-	}
-
+func (response *ResponseData) GetPassword() (string, error) {
+	return response.Script[1][2], nil
 	return "", errors.New("No password found in the response")
 }
-
-/*func getPasswordFromResponse(rawResponseStr string) (string, error) {
-	rawResponseBytes := []byte(rawResponseStr)
-	var response Response
-
-	if err := json.Unmarshal(rawResponseBytes, &response); err != nil {
-		return "", err
-	}
-
-	for _, field_obj := range response.Payload.Item.SecureContents.Fields {
-		if field_obj["designation"] == "password" {
-			return field_obj["value"], nil
-		}
-	}
-
-	return "", errors.New("No password found in the response")
-}*/

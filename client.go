@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
-    //"strings"
+	//"strings"
 )
 
 const DEFAULT_TIMEOUT_STRING_SECONDS = "30"
@@ -66,25 +66,24 @@ func retrievePasswordFromOnepassword(configuration *onepass.Configuration, done 
 		os.Exit(1)
 	}
 
-    /*host := strings.Split(response.Url, " ")
+	/*host := strings.Split(response.Url, " ")
 
-    base := append([]string{host[0], response.Script[1][2]}, host[1:]...)
-    //sshArgs := append(base)
-    cmd         := exec.Command("/opt/local/bin/ssh.sh", base...)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    cmd.Run()*/
+	base := append([]string{host[0], response.Script[1][2]}, host[1:]...)
+	//sshArgs := append(base)
+	cmd         := exec.Command("/opt/local/bin/ssh.sh", base...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()*/
 
-    fmt.Println(response)
-	/*password, err := response.GetPassword()
+	password, err := response.GetPassword()
 
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println(password)*/
+	fmt.Println(password)
 
 	done <- true
 }

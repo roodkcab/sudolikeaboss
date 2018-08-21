@@ -1,0 +1,2 @@
+clang -framework AppKit -framework Foundation -o hijack.dylib -dynamiclib hijack.m ./rd_route.c
+DYLD_INSERT_LIBRARIES=hijack.dylib /Applications/1Password\ 6.app/Contents/Library/LoginItems/2BUA8C4S2C.com.agilebits.onepassword4-helper.app/Contents/MacOS/2BUA8C4S2C.com.agilebits.onepassword4-helper

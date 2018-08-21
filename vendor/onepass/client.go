@@ -26,14 +26,14 @@ type Command struct {
 }
 
 type EncryptedPayload struct {
-    Alg		        string 			 `json:"alg"`
-	Iv		        string			 `json:"iv"`
-	Hmac		    string			 `json:"hmac"`
-	Data		    string           `json:"data"`
+	Alg		string `json:"alg"`
+	Iv		string `json:"iv"`
+	Hmac		string `json:"hmac"`
+	Data		string `json:"data"`
 }
 
 type Payload struct {
-	Version      	string          `json:"version,omitempty"`
+	Version 	string          `json:"version,omitempty"`
 	Capabilities 	[]string        `json:"capabilities,omitempty"`
 
 	ExtId  		    string          `json:"extId,omitempty"`
@@ -42,15 +42,15 @@ type Payload struct {
 	CC 		        string 			`json:"cc,omitempty"`
 	M4 		        string 			`json:"M4,omitempty"`
 
-	//Url          	string          `json:"url"`
+	Url          	string          `json:"url"`
 	Title 		    string 			`json:"title"`
 	TabUrl		    string 			`json:"tabUrl"`
 	Options      	map[string]string 	`json:"options"`
 	Context		        string			    `json:"context"`
 	CollectedTimestamp	string 				`json:"collectedTimestamp"`
-    DocumentUUID		string				`json:"documentUUID"`
+	DocumentUUID		string				`json:"documentUUID"`
 	Forms   map[string]map[string]string 	`json:"forms"`
-    Fields  []map[string]string		        `json:"fields"`
+	Fields  []map[string]string		        `json:"fields"`
 }
 
 type CollectDocumentResultsFields struct {
@@ -114,7 +114,7 @@ func (client *OnePasswordClient) Connect() error {
 func (client *OnePasswordClient) createCommand(action string, payload interface{}) *Command {
 	command := Command {
 		Action:   action,
-        Number:   client.number,
+		Number:   client.number,
 		Payload:  payload,
 	}
 
@@ -206,11 +206,11 @@ func (client *OnePasswordClient) extId() (string) {
 func (client *OnePasswordClient) SendAuthRegisterCommand() (*AuthResponse, error) {
 	/*
 	L = a.alg;
-        c = a.code;
-        a = crypto.getRandomValues(new Uint8Array(16));
-        a = sjcl.codec.bytes.toBits(a);
-        a = sjcl.codec.base64.fromBits(a, true, true).toLowerCase();
-	 */
+	c = a.code;
+	a = crypto.getRandomValues(new Uint8Array(16));
+	a = sjcl.codec.bytes.toBits(a);
+	a = sjcl.codec.base64.fromBits(a, true, true).toLowerCase();
+	*/
 	payload := Payload {
 		Secret:		"123456",
 		Method: 	method,
@@ -242,11 +242,11 @@ func (client *OnePasswordClient) SendAuthBeginCommand() (*AuthResponse, error) {
 
 func (client *OnePasswordClient) SendAuthContinueCommand(authResponse *AuthResponse) (*AuthResponse, error) {
 	/*
-	        d = sjcl.codec.base64.toBits(response.cs, !0);
-	        u = sha256([d, cc])
-	        m3 == u
-	        m4 = r.A(hmac(base64_to_bit(m3), secret))
-	 */
+	d = sjcl.codec.base64.toBits(response.cs, !0);
+	u = sha256([d, cc])
+	m3 == u
+	m4 = r.A(hmac(base64_to_bit(m3), secret))
+	*/
 	m3 := codec.toBits(authResponse.Payload.M3, true)
 	key, err := hex.DecodeString("d76df8e7")
 	if err != nil {
@@ -292,31 +292,32 @@ func (client *OnePasswordClient) SendAuthContinueCommand(authResponse *AuthRespo
 }
 
 func (client *OnePasswordClient) SendShowPopupCommand() (*ResponseData, error) {
-    options, _ := json.Marshal(Payload {
-		//Url:    client.DefaultHost,
+	options, _ := json.Marshal(Payload {
+		Url:    "http://127.0.0.1/iTerm2",
 		Options: map[string]string {
-            "source": "toolbar-button",
-        },
-    })
+			"source": "toolbar-button",
+		},
+	})
 	command := client.createCommand("showPopup", client.encryptor.encryptPayload(string(options)))
 	response, _ := client.SendCommand(command)
 
 	if (response.Action == "collectDocuments") {
 		responseData := client.encryptor.decryptPayload(response.Payload.Data, response.Payload.IV, response.Payload.Hmac)
 		decryptPayload, _ := LoadResponseData(strings.Trim(responseData, "\f"))
-        fields, _ := json.Marshal(Payload {
-            Context: decryptPayload.Context,
-            CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
-            DocumentUUID: "", 
-            /*Forms: map[string]map[string]string {
-                    "__form__0": { "htmlAction" : "", "htmlID": "login", "htmlMethod": "get", "htmlName": "", "opid": "__form__0", },
-            },
+		fields, _ := json.Marshal(Payload {
+			Context: decryptPayload.Context,
+			CollectedTimestamp: strconv.FormatInt(time.Now().UTC().UnixNano() / 1000000 - 5000, 10),
+			DocumentUUID: "", 
+			Forms: map[string]map[string]string {
+				"__form__0": map[string]string {
+					"htmlAction":"http://127.0.0.1/iTerm2","htmlID":"login","htmlMethod":"get","htmlName":"","opid":"__form__0",
+				},
+			},
 			Fields: []map[string]string {
-                {"opid":"__0","elementNumber":"0","form":"__form__0","visible":"true","viewable":"true","htmlID":"userName","htmlName":"","title":"","userEdited":"false","label-right":"","label-left":"","placeholder":"","type":"text","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"text"},
-				{"opid":"__1","elementNumber":"1","form":"__form__0","visible":"true","viewable":"true","htmlID":"userPassword","htmlName":"","title":"","userEdited":"false","label-right":"","label-left":"","placeholder":"","type":"password","value":"","disabled":"false","readonly":"false","onepasswordFieldType":"password"},
-            },*/
-        })
-fmt.Println(fields)
+				{"opid":"__0","elementNumber":"0","form":"__form__0","visible":"true","viewable":"true","htmlID":"userName","htmlName":"","title":"","userEdited":"0","label-right":"","label-left":"","placeholder":"","type":"text","value":"","disabled":"0","readonly":"0","onepasswordFieldType":"text"},
+				{"opid":"__1","elementNumber":"1","form":"__form__0","visible":"true","viewable":"true","htmlID":"userPassword","htmlName":"","title":"","userEdited":"0","label-right":"","label-left":"","placeholder":"","type":"password","value":"","disabled":"0","readonly":"0","onepasswordFieldType":"password"},
+			},
+		})
 		command = client.createCommand("collectDocumentResults", client.encryptor.encryptPayload(string(fields)))
 		response, err := client.SendCommand(command)
 		if (err != nil) {
