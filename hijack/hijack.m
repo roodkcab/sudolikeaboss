@@ -6,10 +6,6 @@
 #import <mach-o/arch.h>
 #include "rd_route.h"
 
-static IMP sendAction_payload = NULL;
-static IMP handle_message = NULL;
-static IMP decrypt_payload = NULL;
-
 static int _OPVerifyAsSafariClientFaker(int a, int b)
 {
     return 1;
